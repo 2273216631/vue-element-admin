@@ -1,4 +1,3 @@
-/* eslint-disable vue/no-unused-vars */
 <template>
   <div class="app-container">
     <div class="filter-container">
@@ -46,11 +45,6 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <!--<el-table-column label="班级" width="150px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>-->
       <el-table-column label="班级" min-width="150px">
         <template>
           <!--<span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
@@ -75,72 +69,56 @@
           <span>信息工程学院</span>
         </template>
       </el-table-column>
-      <!--<el-table-column v-if="showReviewer" :label="$t('table.reviewer')" width="110px" align="center">
+      <el-table-column label="姓名" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <span style="color:red;">{{ row.reviewer }}</span>
+          <span>王东海</span>
         </template>
-      </el-table-column>-->
-      <!--<el-table-column :label="$t('table.importance')" width="80px">
-        <template slot-scope="{row}">
-          <svg-icon v-for="n in +row.importance" :key="n" icon-class="star" class="meta-item__icon" />
-        </template>
-      </el-table-column>-->
-      <!--<el-table-column :label="$t('table.readings')" align="center" width="95">
-        <template slot-scope="{row}">
-          <span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews }}</span>
-          <span v-else>0</span>
-        </template>
-      </el-table-column>-->
-      <!--<el-table-column :label="$t('table.status')" class-name="status-col" width="100">
-        <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
-          </el-tag>
-        </template>
-      </el-table-column>-->
-      <!--<el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
+      </el-table-column>
+      <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            {{ $t('table.edit') }}
-          </el-button>
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            {{ $t('table.publish') }}
-          </el-button>
-          <el-button v-if="row.status!='draft'" size="mini" @click="handleModifyStatus(row,'draft')">
-            {{ $t('table.draft') }}
-          </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-            {{ $t('table.delete') }}
+            {{ $t('详情') }}
           </el-button>
         </template>
-      </el-table-column>-->
+      </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog title="检查详情" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="$t('table.type')" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
+        <el-form-item label="私假">
+          <template>
+            <el-input-number v-model="num" :min="1" :max="10" label="描述文字" @change="handleChange" />
+          </template>
         </el-form-item>
-        <el-form-item :label="$t('table.date')" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
+        <el-form-item label="公假">
+          <template>
+            <el-input-number v-model="num" :min="1" :max="10" label="描述文字" @change="handleChange" />
+          </template>
         </el-form-item>
-        <el-form-item :label="$t('table.title')" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="旷课">
+          <template>
+            <el-input-number v-model="num" :min="1" :max="10" label="描述文字" @change="handleChange" />
+          </template>
         </el-form-item>
-        <el-form-item :label="$t('table.status')">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
+        <el-form-item label="学习状态">
+          <template>
+            <div>
+              <el-checkbox v-model="checked1" label="多数人在学习" border />
+              <el-checkbox v-model="checked2" label="少数人在学习" border />
+            </div>
+            <div style="margin-top: 20px">
+              <el-checkbox v-model="checked3" label="基本不再学习" border size="medium" />
+              <el-checkbox v-model="checked4" label="主题班会讲座" border size="medium" />
+            </div>
+          </template>
         </el-form-item>
-        <el-form-item :label="$t('table.importance')">
-          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
+        <el-form-item label="备注">
+          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="" />
         </el-form-item>
-        <el-form-item :label="$t('table.remark')">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+        <el-form-item label="整改要求">
+          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -213,7 +191,12 @@ export default {
         importance: undefined,
         title: undefined,
         type: undefined,
-        sort: '+id'
+        sort: '+id',
+        num: 1,
+        checked1: true,
+        checked2: false,
+        checked3: false,
+        checked4: true
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
@@ -249,6 +232,9 @@ export default {
     this.getList()
   },
   methods: {
+    handleChange(value) {
+      console.log(value)
+    },
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
